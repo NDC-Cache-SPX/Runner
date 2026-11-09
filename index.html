@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a9d5d">
+  <meta name="description" content="Monitoring Cache Order Task untuk operasi Surabaya RDC">
+  <title>Cache Order Task — Cache Ops</title>
+  <style>
+    :root{--green:#0a9d5d;--green-dark:#087a48;--ink:#17382a;--muted:#738078;--line:#e4ebe7;--bg:#f5f8f6;--panel:#fff;--soft:#eaf7ef;--shadow:0 8px 24px rgba(24,62,43,.055);--danger:#b42318;--warn:#916516}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+    .topbar{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1360px)/2))}.brand{display:flex;align-items:center;gap:11px;font-weight:760;font-size:15px}.brand-icon{width:38px;height:38px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:#fff;font-weight:850;letter-spacing:-1px}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:650;margin-top:2px;letter-spacing:.6px}.top-right{display:flex;align-items:center;gap:10px}.conn{display:flex;align-items:center;gap:7px;font-size:10px;color:#64736a;background:#f4f7f5;border-radius:20px;padding:7px 10px}.conn-dot{width:7px;height:7px;border-radius:50%;background:#a0aaa4}.conn.ready .conn-dot{background:#18a566}.conn.error .conn-dot{background:#d34436}.top-right a{font-size:10px;color:#607168;text-decoration:none}.top-right a:hover{text-decoration:underline}
+    main{max-width:1360px;margin:0 auto;padding:25px 0 42px}.title-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}h1{font-size:28px;letter-spacing:-.7px;margin:0 0 5px;font-weight:790}.subtitle{color:var(--muted);margin:0;font-size:13px}.primary,.secondary,.pager button{border:0;border-radius:10px;font:700 12px inherit;cursor:pointer;transition:.15s ease}.primary{color:#fff;background:var(--green);padding:11px 15px;white-space:nowrap;box-shadow:0 3px 9px #0a9d5d24}.primary:hover{background:var(--green-dark)}.primary:disabled{opacity:.55;cursor:wait}.secondary{background:#fff;border:1px solid var(--line);color:#52675c;padding:9px 12px}.secondary:hover{border-color:#9ac9aa;background:#fafffb}
+    .rule{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(110deg,#eaf8ef,#f5fbf7);border:1px solid #d6eddf;border-radius:13px;padding:14px 17px;margin-bottom:15px}.rule-icon{flex:none;width:34px;height:34px;border-radius:10px;background:#d5f1df;color:var(--green-dark);display:grid;place-items:center;font-size:18px;font-weight:800}.rule-title{font-weight:760;margin:0 0 4px;font-size:13px}.rule-copy{margin:0;color:#52675c;line-height:1.5;font-size:11px}.rule-copy strong{color:#214a34}.rule-note{font-size:10px;color:#718078;margin-top:5px}
+    .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 16px;box-shadow:var(--shadow);min-height:84px}.stat-label{color:var(--muted);font-size:11px;font-weight:660;display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}.stat-value{font-size:23px;font-weight:790;letter-spacing:-.4px;margin:5px 0 1px}.stat-sub{font-size:10px;color:#8a958e}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}.card-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px 8px;gap:10px}.card-heading{min-width:0}.card-actions{display:flex;align-items:center;gap:8px;flex:none}.refresh-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}.refresh-btn:disabled{opacity:.62;cursor:wait}.refresh-icon{display:inline-block;font-size:15px;line-height:1}.refresh-btn.is-refreshing .refresh-icon{animation:refreshSpin .8s linear infinite}.refresh-meta{margin-top:3px;font-size:9px;color:var(--muted)}@keyframes refreshSpin{to{transform:rotate(360deg)}}.card-title{font-size:16px;font-weight:770;margin:0 0 3px}.card-sub{font-size:10px;color:var(--muted)}.active-filter{display:inline-flex;align-items:center;gap:7px;border-radius:30px;background:#edf8f1;color:var(--green-dark);padding:7px 10px;font-weight:700;font-size:10px;white-space:nowrap}.active-filter b{width:7px;height:7px;border-radius:50%;background:var(--green)}
+    .toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:8px 18px 13px}.search{height:37px;display:flex;align-items:center;gap:8px;border:1px solid #dfe7e2;border-radius:9px;padding:0 11px;flex:1 1 235px;max-width:345px;color:#8a968e}.search input{border:0;outline:0;min-width:0;width:100%;font:inherit;font-size:11px;color:var(--ink);background:transparent}.toolbar select{height:37px;border:1px solid #dfe7e2;border-radius:9px;background:#fff;padding:0 10px;color:#44574d;font:inherit;font-size:11px;min-width:120px}.sort-pill{display:flex;align-items:center;gap:6px;height:37px;border:1px solid #dfe7e2;border-radius:9px;padding:0 10px;color:#3e5948;font-size:10px;font-weight:690;white-space:nowrap}.sort-arrow{color:var(--green);font-size:15px;font-weight:800}.filter-tabs{display:flex;align-items:center;gap:5px;padding:3px;background:#f1f5f2;border-radius:10px;overflow-x:auto;max-width:100%}.filter-btn{border:0;background:transparent;border-radius:8px;color:#64736a;padding:8px 10px;font:650 10px inherit;white-space:nowrap;cursor:pointer}.filter-btn.active{background:#fff;color:var(--green-dark);box-shadow:0 1px 5px rgba(28,65,45,.10)}.filter-btn:focus-visible,.primary:focus-visible,.secondary:focus-visible,.pager button:focus-visible{outline:2px solid #57b985;outline-offset:2px}.filter-btn .count{opacity:.68;font-weight:600;margin-left:3px}.toolbar-count{margin-left:auto;color:#7d8a82;font-size:10px;white-space:nowrap}
+    .table-scroll{overflow-x:auto;border-top:1px solid var(--line)}table{border-collapse:collapse;min-width:1220px;width:100%;font-size:11px}thead{background:#f7faf8}th{text-align:left;color:#66756c;font-size:9px;font-weight:730;letter-spacing:.2px;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th.binded-head{color:var(--green-dark)}td{padding:11px 10px;border-bottom:1px solid #edf1ee;white-space:nowrap;color:#3b4d43}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fbfdfb}.id-cell{color:#07864f;font-weight:760;letter-spacing:.1px}.num{font-variant-numeric:tabular-nums;color:#4a5b51}.binded-num{font-weight:780;color:var(--green-dark)}.operator{max-width:148px;overflow:hidden;text-overflow:ellipsis}.time{color:#637169;font-variant-numeric:tabular-nums}.status{padding:5px 8px;border-radius:20px;font-size:9px;font-weight:760;display:inline-block}.status.packed{background:#e9f7ef;color:var(--green-dark)}.status.other{background:#f1f4f2;color:#647169}.category-tag{display:inline-block;margin-right:3px;padding:4px 7px;border-radius:16px;font-size:9px;font-weight:720;white-space:nowrap}.tag-thin{background:#fff6e7;color:#946315}.tag-bulky{background:#f2edff;color:#6747a5}.tag-liquid{background:#e8f4ff;color:#276892}.tag-regular{background:#edf2ef;color:#52675c}.tag-neutral{background:#f1f4f2;color:#647169}.check-cell{text-align:center}.check-wrap{display:inline-flex;cursor:pointer;align-items:center;justify-content:center;gap:6px}.check-wrap input{accent-color:var(--green);width:16px;height:16px;margin:0}.check-wrap input:disabled{opacity:.55;cursor:wait}
+    .mobile-list{display:none}.empty{padding:35px 18px;text-align:center;color:#6c7a71;font-size:12px}.empty strong{display:block;color:#304c3a;font-size:14px;margin-bottom:5px}.table-foot{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;background:#fcfdfc;border-top:1px solid var(--line);color:#7b8981;font-size:10px;gap:12px}.foot-note{display:flex;gap:8px;align-items:center;line-height:1.35}.foot-icon{color:var(--green);font-size:13px}.pager{display:flex;align-items:center;gap:6px}.pager button{padding:7px 10px;border:1px solid #e2e9e4;background:#fff;color:#52675c;font-size:10px}.pager button:hover:not(:disabled){background:#edf8f1;border-color:#d7efe0;color:var(--green-dark)}.pager button:disabled{opacity:.45;cursor:default}.pager span{padding:0 5px;white-space:nowrap}
+    .notice{display:none;border:1px solid #f1d2ac;background:#fff8ed;color:#73521d;border-radius:10px;padding:10px 13px;margin:0 18px 12px;font-size:11px;line-height:1.45}.notice.show{display:block}.notice.error{border-color:#f0c8c5;background:#fff3f2;color:#8a251c}.notice a{color:inherit;font-weight:700}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#18382a;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:11px;display:none;z-index:10;max-width:min(92vw,520px)}.hidden{display:none!important}.file-label{display:inline-flex;align-items:center;gap:7px}.loading{padding:24px;text-align:center;color:#728078;font-size:11px}.preview-note{margin-top:10px;color:#89958e;font-size:9px;text-align:right}
+    @media(max-width:1400px){main{margin:0 22px}}
+    @media(max-width:760px){.card-head{flex-wrap:wrap}.card-heading{flex:1 1 100%}.card-actions{width:100%;justify-content:space-between}.refresh-btn{padding:7px 9px;font-size:9px}.refresh-meta{font-size:8px}.topbar{height:58px;padding:0 14px}.brand{font-size:13px;gap:8px}.brand-icon{width:34px;height:34px;border-radius:10px}.brand small{font-size:9px}.top-right a{display:none}.conn{font-size:9px;padding:6px 8px}main{margin:0;padding:17px 12px 28px}.title-row{align-items:center;margin-bottom:13px}h1{font-size:23px;margin-bottom:4px}.subtitle{font-size:11px;max-width:265px;line-height:1.4}.primary{padding:9px 10px;font-size:10px}.rule{padding:12px;gap:10px;margin-bottom:12px}.rule-icon{width:30px;height:30px;border-radius:9px;font-size:15px}.rule-title{font-size:11px}.rule-copy{font-size:10px}.rule-note{font-size:9px;line-height:1.4}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}.stat{padding:10px 11px;min-height:72px;border-radius:11px}.stat:last-child{grid-column:auto;min-height:72px}.stat-label{font-size:9px;gap:6px}.dot{width:7px;height:7px}.stat-value{font-size:20px;margin:3px 0 0}.stat-sub{font-size:9px}.card{border-radius:12px}.card-head{padding:13px 13px 8px;align-items:flex-start;gap:8px}.card-title{font-size:14px}.card-sub{font-size:9px;line-height:1.4}.active-filter{font-size:9px;padding:6px 7px}.toolbar{padding:7px 12px 11px;gap:7px}.search{flex-basis:100%;max-width:none;height:37px}.toolbar select{flex:1;min-width:0;height:36px;font-size:10px}.sort-pill{height:36px;padding:0 8px;font-size:9px}.filter-tabs{order:4;width:100%;justify-content:flex-start}.filter-btn{padding:8px 9px;font-size:9px}.toolbar-count{order:5;margin-left:0;width:100%;font-size:9px}.table-scroll{display:none}.mobile-list{display:grid;gap:9px;padding:0 10px 10px}.mobile-card{border:1px solid #e8eeea;border-radius:11px;padding:11px;background:#fff}.m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}.m-id{font-size:11px;line-height:1.35;color:var(--green-dark);font-weight:780;word-break:break-word}.m-status{flex:none}.m-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.m-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}.m-metric{background:#f7faf8;border-radius:8px;padding:7px 6px;min-width:0}.m-label{font-size:8px;color:#829087;margin-bottom:4px}.m-value{font-size:10px;font-weight:700;color:#41564a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.m-value.emph{font-size:13px;color:var(--green-dark)}.m-person{margin-top:9px;font-size:9px;color:#53665b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.m-time{display:flex;justify-content:space-between;gap:5px;margin-top:6px;font-size:8px;color:#748178}.m-foot{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid #eef2ef}.m-remark{font-size:9px;color:#718078;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:58%}.m-check{font-size:9px;color:#52675c;white-space:nowrap}.m-check input{width:15px;height:15px;vertical-align:middle;margin:0 3px 0 0;accent-color:var(--green)}.table-foot{padding:10px 12px;font-size:9px;align-items:flex-start;flex-direction:column}.foot-note{line-height:1.35}.preview-note{text-align:left;font-size:9px;line-height:1.45;margin-top:9px}.notice{margin:0 12px 10px}.pager{align-self:flex-end}}
+    @media(max-width:370px){.m-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.active-filter{display:none}.primary{font-size:9px;padding:8px}.sort-pill{font-size:8px}}
+    .runner-entry{font-family:inherit;font-size:9px;font-weight:700;color:var(--green-dark);border:1px solid #d6eddf;background:#f3fbf5;border-radius:7px;padding:5px 7px;cursor:pointer;white-space:nowrap}.runner-entry:hover{background:#eaf7ef}.runner-owner-cell strong{display:block;font-size:8px}.runner-owner-cell small{display:block;color:var(--muted);font-size:7px;margin-top:2px}.runner-alert{display:none}.runner-alert.show{display:block;padding:9px 11px;border:1px solid #d7ecde;background:#f4fbf6;border-radius:8px;color:#35694a;font-size:9px;margin-bottom:9px}.runner-alert.error{border-color:#f0d0cc;background:#fff2f0;color:#8c2c22}.runner-alert.success{border-color:#d7ecde;background:#f1faf4;color:#2e6743}.title-actions{display:flex;align-items:center;gap:8px}.runner-workspace{max-width:1360px;margin:0 auto 20px}.runner-topline,.runner-session-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin:3px 0 15px}.runner-eyebrow{color:var(--green-dark);font-size:10px;letter-spacing:.7px;font-weight:800;text-transform:uppercase;margin-bottom:5px}.runner-page-title{font-size:25px;margin:0 0 5px}.runner-page-copy{color:var(--muted);font-size:11px;margin:0}.runner-view{display:grid;gap:12px}.runner-panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:15px 17px}.runner-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.runner-section-head h3,.runner-session-header h3{font-size:15px;margin:0 0 3px}.runner-section-head p{font-size:9px;color:var(--muted);margin:0}.runner-lock-state{background:#f0f6f2;color:#50675a;border-radius:20px;padding:6px 9px;font-size:8px;font-weight:750;white-space:nowrap}.runner-locked-banner{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #d7ecde;background:#f4fbf6;border-radius:9px;margin:8px 0 13px}.runner-locked-banner strong{font-size:9px}.runner-locked-banner span{font-size:8px;color:#62746a;flex:1}.runner-locked-banner button{font-size:9px;padding:8px 10px}.runner-slot-head{display:flex;justify-content:space-between;align-items:center;margin:10px 0 8px}.runner-slot-head strong{display:block;font-size:10px}.runner-slot-head small{display:block;font-size:8px;color:var(--muted);margin-top:2px}.runner-small-button{font-size:9px;padding:7px 10px}.runner-slot-chips{display:flex;flex-wrap:wrap;gap:7px;padding:9px;background:#f8fbf9;border:1px solid #e8eeea;border-radius:9px;min-height:42px}.runner-slot-chip{display:inline-flex;align-items:center;gap:6px;background:#eaf7ef;color:#286844;border-radius:18px;padding:6px 9px;font-size:8px;font-weight:800}.runner-slot-chip.pending{background:#fff2ec;color:#9c503a}.runner-slot-chip button{border:0;background:transparent;color:inherit;font-size:12px;cursor:pointer;line-height:1;padding:0 0 0 2px}.runner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:12px 0 8px}.runner-search{height:34px;border:1px solid #dfe7e2;border-radius:8px;display:flex;align-items:center;gap:7px;padding:0 9px;color:#8a968e;min-width:210px}.runner-search input{border:0;outline:0;background:transparent;width:100%;min-width:0;font:inherit;font-size:9px;color:var(--ink)}.runner-muted{font-size:8px;color:var(--muted)}.runner-table-scroll{overflow:auto;border:1px solid #e8eeea;border-radius:8px}.runner-table{width:100%;border-collapse:collapse;min-width:680px;font-size:9px}.runner-table th{padding:9px 8px;text-align:left;background:#f7faf8;color:#6d7b72;font-size:8px;white-space:nowrap}.runner-table td{padding:8px;border-bottom:1px solid #edf1ee;vertical-align:middle}.runner-table tr:last-child td{border-bottom:0}.runner-task-id{font-weight:800;color:var(--green-dark);white-space:nowrap}.runner-task-sub{display:block;font-size:7px;color:#89958d;margin-top:3px}.runner-owner-select{min-width:128px;height:30px;border:1px solid #dfe7e2;border-radius:7px;background:#fff;padding:0 7px;color:var(--ink);font:inherit;font-size:8px}.runner-owner-select:disabled{background:#f6f8f7;color:#849087}.runner-category{font-size:7px;color:#607168;background:#f1f5f2;border-radius:14px;padding:4px 7px;white-space:nowrap}.runner-status-done{font-size:8px;font-weight:800;color:#07804a}.runner-status-open{font-size:8px;color:#9b6a17}.runner-check-cell{white-space:nowrap}.runner-check-cell label{display:inline-flex;align-items:center;gap:5px;font-size:8px}.runner-check-cell input{accent-color:var(--green);width:15px;height:15px}.runner-disabled-action{font-size:7px;color:#819087}.runner-empty{padding:20px;text-align:center;color:var(--muted);font-size:9px}.runner-pager{display:flex;justify-content:center;align-items:center;gap:12px;padding:10px 0 2px;font-size:8px;color:#66756c}.runner-pager button{font-size:8px;padding:6px 9px}.runner-bottom-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid #edf1ee}.runner-action-note{font-size:8px;color:var(--muted);max-width:450px}.runner-action-buttons{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}.runner-action-buttons button{font-size:8px;padding:8px 10px}.runner-active-sessions{display:flex;flex-wrap:wrap;gap:8px}.runner-active-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f5fbf7;border:1px solid #d9eee1;border-radius:8px;font-size:8px}.runner-active-item strong{font-size:8px}.runner-active-item small{display:block;color:var(--muted);font-size:7px}.runner-handover-button{margin-left:auto;flex:none;padding:6px 8px;font-size:7px}.runner-security-note{margin-top:12px;padding:9px 10px;background:#fff8e9;border:1px solid #f1e5c8;border-radius:8px;font-size:8px;color:#705b2d;line-height:1.5}.runner-register-panel{max-width:780px;margin:0 auto;padding:20px}.runner-register-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.runner-register-grid label{display:grid;gap:6px;font-size:9px;font-weight:750;color:#52655a}.runner-register-grid input,.runner-register-grid select{height:40px;border:1px solid #d9e3dc;border-radius:8px;padding:0 10px;font:inherit;font-size:10px;color:var(--ink);background:#fff}.runner-assignment-preview{padding:12px;background:#f7faf8;border:1px solid #e8eeea;border-radius:9px}.runner-assignment-preview>strong{font-size:9px;display:block;margin-bottom:8px}.runner-task-chips{display:flex;flex-wrap:wrap;gap:6px}.runner-task-chip{background:#eaf7ef;color:#286844;border-radius:6px;padding:5px 7px;font-size:7px;font-weight:800}.runner-session-header{align-items:center}.runner-session-actions{display:flex;align-items:center;gap:7px}.runner-identity{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f4fbf6;border:1px solid #d7ecde;border-radius:9px}.runner-identity>span{color:var(--green-dark);font-size:13px}.runner-identity strong{display:block;font-size:9px}.runner-identity small{display:block;color:var(--muted);font-size:7px}.runner-session-actions button{font-size:8px;padding:8px 9px}.runner-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 10px}.runner-metric{padding:11px 13px;min-height:76px}.runner-metric span{display:block;color:var(--muted);font-size:7px;font-weight:800}.runner-metric strong{display:inline-block;font-size:20px;margin-top:5px}.runner-metric small{display:inline-block;font-size:7px;color:#8c9891;margin-left:7px}.runner-progress-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:9px}.runner-progress-card{padding:11px 12px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}.runner-progress-head{display:flex;align-items:center;gap:7px}.runner-avatar{width:27px;height:27px;border-radius:8px;background:#eaf6ef;color:var(--green-dark);display:grid;place-items:center;font-weight:800;font-size:7px}.runner-progress-name{min-width:0}.runner-progress-name strong{display:block;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.runner-progress-name small{display:block;font-size:7px;color:var(--muted)}.runner-percent{margin-left:auto;font-size:15px;font-weight:850}.runner-progress-bar{height:6px;border-radius:9px;background:#edf2ee;margin:8px 0 5px;overflow:hidden}.runner-progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#0a9d5d,#54bd82);border-radius:9px}.runner-progress-meta{display:flex;justify-content:space-between;font-size:7px;color:var(--muted)}.runner-done-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}.runner-done-chips span{background:#eef8f1;color:#39704e;border-radius:5px;padding:4px 5px;font-size:6px;font-weight:750}.runner-rule-note{font-size:8px;color:#68786e;background:#f7faf8;border:1px solid #e8eeea;border-radius:8px;padding:8px 10px;margin:4px 0 10px}.runner-dashboard-panel{padding:13px 15px}.runner-dashboard-panel .runner-section-head{align-items:center}.runner-dashboard-search{min-width:190px}.runner-footnote{font-size:8px;color:#8b978f;margin:9px 2px}.runner-notice{padding:9px 11px;background:#fff8e9;border:1px solid #f0e3c5;border-radius:8px;color:#705b2d;font-size:9px;margin-bottom:10px}.runner-notice.error{background:#fff2f0;border-color:#f0d0cc;color:#8c2c22}.runner-notice.success{background:#f1faf4;border-color:#d7ecde;color:#2e6743}
+@media(max-width:760px){.title-row{flex-wrap:wrap;align-items:flex-start}.title-actions{width:100%;justify-content:flex-end;gap:5px}.title-actions button{font-size:9px;padding:8px 9px}.runner-workspace{padding:0 10px}.runner-topline,.runner-session-header{display:block}.runner-topline>.secondary{margin-top:10px}.runner-page-title{font-size:21px}.runner-section-head{display:block}.runner-lock-state{display:inline-flex;margin-top:8px}.runner-locked-banner{align-items:flex-start;flex-direction:column}.runner-locked-banner button{width:100%}.runner-toolbar{align-items:stretch;flex-direction:column}.runner-search{min-width:0;width:100%}.runner-table{min-width:620px}.runner-bottom-actions{align-items:stretch;flex-direction:column}.runner-action-note{max-width:none;line-height:1.45}.runner-action-buttons{display:grid;grid-template-columns:1fr 1fr}.runner-action-buttons button{width:100%;min-height:36px}.runner-register-grid{grid-template-columns:1fr}.runner-register-panel{padding:15px}.runner-session-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:11px}.runner-identity{grid-column:1/-1}.runner-session-actions button{min-height:36px}.runner-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.runner-metric{padding:9px;min-height:67px}.runner-metric:last-child{grid-column:1/-1}.runner-metric strong{font-size:18px}.runner-progress-cards{grid-template-columns:1fr;gap:7px}.runner-progress-card{padding:10px}.runner-dashboard-panel{padding:11px}.runner-dashboard-panel .runner-section-head{display:block}.runner-dashboard-search{margin-top:8px}.runner-slot-head{align-items:flex-start}.runner-session-list{padding:13px}.runner-active-item{width:100%;justify-content:flex-start}.runner-pager{gap:8px}.runner-pager button{padding:7px}.runner-security-note{line-height:1.55}}
+
+
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-icon">CO</div><div>Cache Ops<small>SURABAYA RDC</small></div></div>
+  <div class="top-right"><div class="conn" id="connection"><i class="conn-dot"></i><span id="connectionText">Menghubungkan…</span></div><a id="openBackend" class="hidden" href="#" target="_blank" rel="noopener">Buka login backend</a></div>
+</header>
+<main>
+  <div id="taskDashboard">
+  <div class="title-row">
+    <div><h1>Cache Order Task</h1><p class="subtitle">Pantau Checklist Runner.</p></div>
+    <div class="title-actions"><button class="secondary" id="runnerModeBtn" type="button">▣ Runner Model A</button><button class="primary" id="uploadBtn" type="button"><span class="file-label">＋ Unggah CSV</span></button></div>
+    <input id="csvFile" type="file" accept=".csv,text/csv" class="hidden">
+  </div>
+  <section class="stats" aria-label="Ringkasan data">
+    <div class="stat"><div class="stat-label"><i class="dot" style="background:#54b880"></i>Complete Time terisi</div><div class="stat-value" id="statComplete">—</div><div class="stat-sub">task memiliki waktu selesai</div></div>
+    <div class="stat"><div class="stat-label"><i class="dot" style="background:#79b6d6"></i>Task pada tampilan</div><div class="stat-value" id="statVisible">—</div><div class="stat-sub" id="statVisibleSub">jumlah task yang tampil saat ini</div></div>
+  </section>
+  <section class="card">
+    <div class="card-head">
+      <div class="card-heading">
+        <h2 class="card-title">Daftar task</h2>
+        <div class="card-sub" id="lastImportText">Unggah CSV untuk memulai. Data task belum dimuat.</div>
+        <div class="refresh-meta" id="refreshMeta">Refresh otomatis setiap 1 menit · WIB</div>
+      </div>
+      <div class="card-actions">
+        <button class="secondary refresh-btn" id="refreshBtn" type="button" aria-label="Refresh data dari spreadsheet">
+          <span class="refresh-icon" aria-hidden="true">↻</span><span>Refresh</span>
+        </button>
+        <span class="active-filter"><b></b><span id="h1Badge">Menunggu CSV</span></span>
+      </div>
+    </div>
+    <div id="notice" class="notice" role="status"></div>
+    <div class="toolbar">
+      <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Cari task, operator, atau staging area…" aria-label="Cari task, operator, staging area"></label>
+      <select id="statusFilter" aria-label="Filter status"><option value="">Semua status</option></select>
+      <span class="sort-pill"><span class="sort-arrow">↓</span> Binded terbesar dulu</span>
+      <div class="filter-tabs" role="group" aria-label="Filter kategori">
+        <button class="filter-btn active" data-cat="all" type="button">Semua <span class="count" data-count="all">0</span></button>
+        <button class="filter-btn" data-cat="Reguler" type="button">Reguler <span class="count" data-count="Reguler">0</span></button>
+        <button class="filter-btn" data-cat="Paket Tipis" type="button">Paket Tipis <span class="count" data-count="Paket Tipis">0</span></button>
+        <button class="filter-btn" data-cat="Bulky" type="button">Bulky <span class="count" data-count="Bulky">0</span></button>
+        <button class="filter-btn" data-cat="Liquid" type="button">Liquid <span class="count" data-count="Liquid">0</span></button>
+      </div>
+      <span class="toolbar-count" id="toolbarCount">0 task</span>
+    </div>
+    <div class="table-scroll" id="tableWrap">
+      <table><thead><tr><th>Cache Order Task</th><th>Total Qty</th><th class="binded-head">Binded Qty ↓</th><th>RTS Qty</th><th>Staging Area</th><th>Operator</th><th>Create Time</th><th>Complete Time</th><th>Status</th><th>Task Remark</th><th style="text-align:center">Checklist</th></tr></thead><tbody id="tbody"></tbody></table>
+    </div>
+    <div class="mobile-list" id="mobileList"></div>
+    <div id="emptyState" class="empty hidden"><strong id="emptyTitle">Belum ada data CSV</strong><span id="emptyCopy">Unggah CSV melalui tombol di bagian atas.</span></div>
+    <div id="loading" class="loading">Menghubungkan ke backend…</div>
+    <div class="table-foot"><div class="foot-note"><span class="foot-icon">●</span><span>Checklist tersimpan di spreadsheet terpisah dari data CSV; penggantian CSV tidak mereset centang.</span></div><div class="pager"><button type="button" id="prevPage" aria-label="Halaman sebelumnya">‹</button><span id="pageLabel">Halaman 0 / 0</span><button type="button" id="nextPage" aria-label="Halaman berikutnya">›</button></div></div>
+  </section>
+  <div class="preview-note">Checklist runner tersedia di Mode Runner. CSV tetap diproses oleh backend dan tidak disimpan di GitHub Pages.</div>
+  </div>
+<section id="runnerWorkspace" class="runner-workspace hidden" aria-label="Runner Model A">
+  <div class="runner-topline">
+    <div><div class="runner-eyebrow">Model A · alokasi per CO</div><h2 class="runner-page-title">Manajemen Runner</h2><p class="runner-page-copy">Slot runner fleksibel, satu PIC per CO, progress dihitung dari tugas yang dialokasikan.</p></div>
+    <button class="secondary" id="runnerBackToTasks" type="button">← Kembali ke daftar task</button>
+  </div>
+  <div class="runner-alert" id="runnerNotice" role="status"></div>
+
+  <section id="runnerSetupView" class="runner-view">
+    <div class="runner-panel runner-setup-panel">
+      <div class="runner-section-head"><div><h3>1. Slot dan alokasi CO</h3><p>Tambah atau nonaktifkan slot; alokasikan setiap CO ke satu runner sebelum setup dikunci.</p></div><span class="runner-lock-state" id="runnerSetupBadge">Setup belum dikunci</span></div>
+      <div id="runnerLockedBanner" class="runner-locked-banner hidden"><strong>Alokasi terkunci untuk sesi kerja.</strong><span>Runner dapat mulai sesi. Untuk mengubah slot atau PIC, akhiri semua sesi dahulu lalu buka setup dengan konfirmasi Shift Lead.</span><button id="runnerStartRegistration" class="primary" type="button">Daftar sebagai Runner →</button></div>
+      <div class="runner-slot-head"><div><strong>Slot runner</strong><small>Tambah atau tandai slot untuk dinonaktifkan.</small></div><button class="secondary runner-small-button" id="runnerAddSlot" type="button">＋ Tambah slot</button></div>
+      <div id="runnerSlotChips" class="runner-slot-chips"></div>
+      <div class="runner-toolbar"><label class="runner-search"><span>⌕</span><input id="runnerTaskSearch" type="search" placeholder="Cari CO, operator, staging…"></label><span id="runnerSetupCount" class="runner-muted">Memuat CO…</span></div>
+      <div class="runner-table-scroll"><table class="runner-table"><thead><tr><th>Cache Order Task</th><th>Binded</th><th>Kategori</th><th>Runner PIC</th><th>Checklist</th></tr></thead><tbody id="runnerSetupRows"></tbody></table></div>
+      <div id="runnerSetupEmpty" class="runner-empty hidden">Belum ada CO pada data aktif. Periksa impor dan filter H-1.</div>
+      <div class="runner-pager"><button class="secondary" id="runnerSetupPrev" type="button">‹ Sebelumnya</button><span id="runnerSetupPageLabel">Halaman 1 / 1</span><button class="secondary" id="runnerSetupNext" type="button">Berikutnya ›</button></div>
+      <div class="runner-bottom-actions"><div class="runner-action-note">Slot yang masih memiliki CO tidak dapat dihapus. Pindahkan CO ke slot lain, simpan semua halaman, lalu terapkan penghapusan slot.</div><div class="runner-action-buttons"><button class="secondary hidden" id="runnerUnlockSetup" type="button">Buka kunci setup</button><button class="secondary" id="runnerApplySlots" type="button">Simpan perubahan slot</button><button class="secondary" id="runnerSaveAssignments" type="button">Simpan alokasi halaman</button><button class="primary" id="runnerLockSetup" type="button">Kunci alokasi untuk shift</button></div></div>
+    </div>
+    <div class="runner-panel runner-session-list"><div class="runner-section-head"><div><h3>Sesi aktif</h3><p>Identitas runner dimasukkan manual; bukan verifikasi email.</p></div><span class="runner-lock-state">Serah-terima</span></div><div id="runnerActiveSessions" class="runner-active-sessions"><span class="runner-muted">Belum ada sesi aktif.</span></div><div class="runner-security-note"><strong>Kontrol akses:</strong> sesuai konfigurasi Apps Script saat ini, akses aplikasi tidak mengautentikasi peran Shift Lead. Pengguna yang memiliki akses aplikasi dapat mengubah alokasi setelah setup dibuka. Terapkan pembatasan deployment sebelum dipakai untuk keputusan audit.</div></div>
+  </section>
+
+  <section id="runnerRegisterView" class="runner-view hidden">
+    <div class="runner-panel runner-register-panel"><div class="runner-section-head"><div><div class="runner-eyebrow">Langkah 2 dari 3</div><h3>Daftar sebelum checklist</h3><p>Nama manual dan satu slot runner. Slot yang sedang aktif tidak bisa dipilih.</p></div><span class="runner-lock-state">▣ Setup terkunci</span></div>
+      <div class="runner-register-grid"><label>Nama runner<input id="runnerNameInput" maxlength="60" placeholder="Contoh: Rani Pratama" autocomplete="name"></label><label>Slot runner<select id="runnerSlotSelect"></select></label></div>
+      <div class="runner-assignment-preview"><strong>CO yang dialokasikan untuk slot ini</strong><div id="runnerAssignedPreview" class="runner-task-chips"></div></div>
+      <div class="runner-locked-banner"><strong>▣ Identitas dan daftar dikunci selama sesi.</strong><span>Urutan task tidak berubah saat checklist. Untuk berganti orang, akhiri sesi terlebih dahulu.</span></div>
+      <div class="runner-bottom-actions"><button class="secondary" id="runnerBackToSetup" type="button">Kembali ke setup</button><button class="primary" id="runnerRegisterStart" type="button">Kunci sesi & mulai checklist →</button></div>
+    </div>
+  </section>
+
+  <section id="runnerDashboardView" class="runner-view hidden">
+    <div class="runner-session-header"><div><div class="runner-eyebrow">Langkah 3 dari 3 · progress per runner</div><h3 id="runnerDashboardTitle">Progress & alokasi Runner</h3><p id="runnerDashboardSub" class="runner-page-copy">Satu CO ditugaskan kepada satu runner.</p></div><div class="runner-session-actions"><div class="runner-identity"><span>▣</span><div><strong id="runnerIdentityText">Runner</strong><small>Nama input manual · sesi terkunci</small></div></div><button class="secondary" id="runnerRefresh" type="button">↻ Refresh</button><button class="secondary" id="runnerEndSession" type="button">Akhiri sesi</button></div></div>
+    <div class="runner-summary"><article class="runner-panel runner-metric"><span>CO DIALOKASIKAN</span><strong id="runnerMetricAssigned">0</strong><small>masing-masing satu owner</small></article><article class="runner-panel runner-metric"><span>CO SELESAI</span><strong id="runnerMetricCompleted">0 / 0</strong><small>checklist unik per CO</small></article><article class="runner-panel runner-metric"><span>PROGRES SHIFT</span><strong id="runnerMetricPercent">0%</strong><small>CO selesai ÷ CO aktif</small></article></div>
+    <div id="runnerProgressCards" class="runner-progress-cards"></div>
+    <div class="runner-rule-note" id="runnerRuleNote">▣ Progress runner = CO selesai ÷ CO yang dialokasikan ke slot tersebut. Denominator tidak berubah oleh pencarian atau paginasi.</div>
+    <div class="runner-dashboard-panel runner-panel"><div class="runner-section-head"><div><h3>Daftar CO, pemilik, dan checklist</h3><p>Hanya runner pemilik yang dapat mengubah checkbox.</p></div><label class="runner-search runner-dashboard-search"><span>⌕</span><input id="runnerDashboardSearch" type="search" placeholder="Cari CO, operator, staging…"></label></div><div class="runner-table-scroll"><table class="runner-table"><thead><tr><th>Cache Order Task</th><th>Binded</th><th>Kategori</th><th>Runner PIC</th><th>Status checklist</th><th>Tindakan</th></tr></thead><tbody id="runnerDashboardRows"></tbody></table></div><div class="runner-pager"><button class="secondary" id="runnerDashboardPrev" type="button">‹ Sebelumnya</button><span id="runnerDashboardPageLabel">Halaman 1 / 1</span><button class="secondary" id="runnerDashboardNext" type="button">Berikutnya ›</button></div></div>
+    <p class="runner-footnote">Checklist Model A disimpan terpisah dari tab Checklist lama. Riwayat checklist runner dicatat di RunnerHistory. Refresh otomatis saat halaman aktif.</p>
+  </section>
+</section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<iframe id="backendFrame" name="backendTransport" title="Koneksi backend Cache Order Task" class="hidden" aria-hidden="true"></iframe>
+<script>
+
+'use strict';
+const APP_CONFIG = Object.freeze({
+  backendUrl: 'https://script.google.com/macros/s/AKfycby_KHKN4Kwvulh-3H1hghGzEILzq_Q3t6iR5se0DJYCo1N-Z2i5uK7BFhUt89iYA07n/exec', // Replace with deployed Apps Script /exec URL.
+  pageSize: 50,
+  maxUploadBytes: 6 * 1024 * 1024,
+  autoRefreshMs: 60 * 1000,
+  runnerPageSize: 50,
+  runnerHeartbeatMs: 3 * 60 * 1000
+});
+const state = {
+  connected: false,
+  csrfToken: '',
+  activeCategory: 'all',
+  page: 1,
+  search: '',
+  status: '',
+  data: null,
+  pending: new Map(),
+  requestSeq: 0,
+  debounceTimer: null,
+  busy: false,
+  apiQueue: Promise.resolve(),
+  bootstrapPromise: null,
+  refreshInFlight: false,
+  refreshPending: false,
+  mutationsInFlight: 0,
+  lastRefreshedAt: 0,
+  autoRefreshTimer: null,
+  queryRevision: 0,
+  runnerView: 'main',
+  runnerData: null,
+  runnerPage: 1,
+  runnerSearch: '',
+  runnerSearchTimer: null,
+  runnerSlots: [],
+  runnerPendingRemoval: [],
+  runnerDirty: false,
+  runnerSession: null,
+  runnerBusyIds: new Set(),
+  runnerRefreshTimer: null,
+  runnerHeartbeatTimer: null
+};
+const $ = (selector) => document.querySelector(selector);
+const frame = $('#backendFrame');
+
+function formatNumber(value) {
+  return new Intl.NumberFormat('id-ID').format(Number(value || 0));
+}
+function escapeHtml(value) {
+  return String(value === null || value === undefined ? '' : value).replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[ch]);
+}
+function newRequestId() {
+  state.requestSeq += 1;
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+  return 'req_' + Date.now().toString(36) + '_' + state.requestSeq.toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+function configuredBackend() {
+  try {
+    const url = new URL(String(APP_CONFIG.backendUrl || '').trim());
+
+    const validPath =
+      /^\/macros\/s\/[^/]+\/exec\/?$/.test(url.pathname) ||
+      /^\/a\/macros\/[^/]+\/s\/[^/]+\/exec\/?$/.test(url.pathname);
+
+    return url.protocol === 'https:' &&
+      url.hostname.toLowerCase() === 'script.google.com' &&
+      validPath;
+  } catch (error) {
+    return false;
+  }
+}
+function googleAppsScriptOrigin(origin) {
+  try {
+    const url = new URL(origin);
+    const host = url.hostname.toLowerCase();
+    return url.protocol === 'https:' && (
+      host === 'script.google.com' ||
+      host === 'script.googleusercontent.com' ||
+      host.endsWith('script.googleusercontent.com') ||
+      host.endsWith('.googleusercontent.com')
+    );
+  } catch (error) { return false; }
+}
+function setConnection(kind, label) {
+  const el = $('#connection');
+  el.classList.remove('ready', 'error');
+  if (kind) el.classList.add(kind);
+  $('#connectionText').textContent = label;
+}
+function showNotice(message, type) {
+  const el = $('#notice');
+  el.classList.remove('show', 'error');
+  el.textContent = '';
+  if (!message) return;
+  el.textContent = message;
+  el.classList.add('show');
+  if (type === 'error') el.classList.add('error');
+}
+function toast(message) {
+  const el = $('#toast');
+  el.textContent = message;
+  el.style.display = 'block';
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { el.style.display = 'none'; }, 3200);
+}
+function frameUrl(requestId) {
+  const separator = APP_CONFIG.backendUrl.indexOf('?') >= 0 ? '&' : '?';
+  return APP_CONFIG.backendUrl + separator + 'action=bootstrap&requestId=' + encodeURIComponent(requestId);
+}
+function waitForMessage(requestId, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      state.pending.delete(requestId);
+      state.csrfToken = '';
+      reject(new Error('Backend belum merespons. Pastikan Apps Script sudah di-deploy dan akun Google sudah login.'));
+    }, timeoutMs);
+    state.pending.set(requestId, { resolve, reject, timeout });
+  });
+}
+function bootstrap() {
+  if (!configuredBackend()) return Promise.reject(new Error('URL deployment Apps Script belum diisi pada konfigurasi front end.'));
+  if (state.bootstrapPromise) return state.bootstrapPromise;
+
+  const requestId = newRequestId();
+  const response = waitForMessage(requestId, 30000);
+  frame.src = frameUrl(requestId);
+
+  const bootstrapRequest = response.then((payload) => {
+    if (!payload || !payload.csrfToken) throw new Error('Sesi backend tidak dapat dibuat.');
+    state.csrfToken = payload.csrfToken;
+    state.connected = true;
+    setConnection('ready', 'Terhubung');
+    return true;
+  }).finally(() => {
+    if (state.bootstrapPromise === bootstrapRequest) state.bootstrapPromise = null;
+  });
+  state.bootstrapPromise = bootstrapRequest;
+  return bootstrapRequest;
+}
+
+async function postFormNow(action, payload, timeoutMs) {
+  if (!state.csrfToken) await bootstrap();
+
+  const requestId = newRequestId();
+  const response = waitForMessage(requestId, timeoutMs || 45000);
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = APP_CONFIG.backendUrl;
+  form.target = 'backendTransport';
+  form.acceptCharset = 'UTF-8';
+  form.style.display = 'none';
+  const fields = {
+    action: action,
+    requestId: requestId,
+    csrfToken: state.csrfToken,
+    payload: JSON.stringify(payload || {})
+  };
+  Object.keys(fields).forEach((name) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = fields[name];
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  try {
+    form.submit();
+  } catch (error) {
+    const pending = state.pending.get(requestId);
+    state.pending.delete(requestId);
+    if (pending) {
+      clearTimeout(pending.timeout);
+      pending.reject(error);
+    }
+  }
+  setTimeout(() => form.remove(), 1500);
+  return response;
+}
+
+function postForm(action, payload, timeoutMs) {
+  const run = () => postFormNow(action, payload, timeoutMs);
+  const task = state.apiQueue.then(run, run);
+  state.apiQueue = task.then(() => undefined, () => undefined);
+  return task;
+}
+window.addEventListener('message', (event) => {
+  if (!googleAppsScriptOrigin(event.origin)) return;
+  const message = event.data;
+  if (!message || message.app !== 'cache-order-task' || typeof message.requestId !== 'string') return;
+  const pending = state.pending.get(message.requestId);
+  if (!pending) return;
+  clearTimeout(pending.timeout);
+  state.pending.delete(message.requestId);
+  const result = message.payload || {};
+  if (result.csrfToken) state.csrfToken = result.csrfToken;
+  if (!result.ok) {
+    pending.reject(new Error(result.error || 'Permintaan backend gagal.'));
+    return;
+  }
+  if (result.kind !== 'bootstrap') {
+    state.connected = true;
+    setConnection('ready', 'Terhubung');
+  }
+  pending.resolve(result);
+});
+
+function categoriesHtml(categories) {
+  if (!Array.isArray(categories) || !categories.length) return '<span class="category-tag tag-neutral">Umum</span>';
+  return categories.map((category) => {
+    const cls = category === 'Paket Tipis' ? 'tag-thin' : (category === 'Bulky' ? 'tag-bulky' : (category === 'Reguler' ? 'tag-regular' : 'tag-liquid'));
+    return '<span class="category-tag ' + cls + '">' + escapeHtml(category) + '</span>';
+  }).join('');
+}
+function statusHtml(status) {
+  const cls = String(status || '').toLowerCase() === 'packed' ? 'packed' : 'other';
+  return '<span class="status ' + cls + '">' + escapeHtml(status || '—') + '</span>';
+}
+function checkedBox(item, compact) {
+  const label = compact ? 'm-check' : 'runner-only-cell';
+  return '<button class="runner-entry ' + label + '" type="button" data-open-runner aria-label="Buka checklist Runner Model A">' +
+    (compact ? 'Checklist' : 'Mode Runner') + '</button>';
+}
+function renderRows(data) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const tbody = $('#tbody');
+  const mobile = $('#mobileList');
+  tbody.innerHTML = items.map((item) => '<tr>' +
+    '<td class="id-cell">' + escapeHtml(item.id) + '</td>' +
+    '<td class="num">' + formatNumber(item.total) + '</td>' +
+    '<td class="num binded-num">' + formatNumber(item.binded) + '</td>' +
+    '<td class="num">' + formatNumber(item.rts) + '</td>' +
+    '<td>' + escapeHtml(item.staging || '—') + '</td>' +
+    '<td class="operator" title="' + escapeHtml(item.operator || '') + '">' + escapeHtml(item.operator || '—') + '</td>' +
+    '<td class="time">' + escapeHtml(item.createTime || '—') + '</td>' +
+    '<td class="time">' + escapeHtml(item.completeTime || '—') + '</td>' +
+    '<td>' + statusHtml(item.status) + '</td>' +
+    '<td>' + categoriesHtml(item.categories) + (item.remark ? '<span> ' + escapeHtml(item.remark) + '</span>' : '') + '</td>' +
+    '<td class="check-cell">' + checkedBox(item, false) + '</td></tr>').join('');
+
+  mobile.innerHTML = items.map((item) => '<article class="mobile-card">' +
+    '<div class="m-head"><div class="m-id">' + escapeHtml(item.id) + '</div><div class="m-status">' + statusHtml(item.status) + '</div></div>' +
+    '<div class="m-tags">' + categoriesHtml(item.categories) + '</div>' +
+    '<div class="m-grid">' +
+      '<div class="m-metric"><div class="m-label">TOTAL QTY</div><div class="m-value">' + formatNumber(item.total) + '</div></div>' +
+      '<div class="m-metric"><div class="m-label">BINDED QTY</div><div class="m-value emph">' + formatNumber(item.binded) + '</div></div>' +
+      '<div class="m-metric"><div class="m-label">RTS QTY</div><div class="m-value">' + formatNumber(item.rts) + '</div></div>' +
+      '<div class="m-metric"><div class="m-label">STAGING</div><div class="m-value">' + escapeHtml(item.staging || '—') + '</div></div></div>' +
+    '<div class="m-person">Operator: ' + escapeHtml(item.operator || '—') + '</div>' +
+    '<div class="m-time"><span>Complete Time</span><strong>' + escapeHtml(item.completeTime || '—') + '</strong></div>' +
+    '<div class="m-foot"><span class="m-remark">Task Remark: ' + escapeHtml(item.remark || '—') + '</span>' + checkedBox(item, true) + '</div></article>').join('');
+
+  document.querySelectorAll('[data-check]').forEach((checkbox) => {
+    checkbox.addEventListener('change', onChecklistChange);
+  });
+  document.querySelectorAll('[data-open-runner]').forEach((button) => button.addEventListener('click', enterRunnerMode));
+  const noData = items.length === 0;
+  $('#tableWrap').classList.toggle('hidden', noData);
+  mobile.classList.toggle('hidden', noData);
+  $('#emptyState').classList.toggle('hidden', !noData);
+  if (noData) {
+    const stats = data.stats || {};
+    const lastImport = data.lastImport || null;
+    const totalRows = Number(stats.totalRows === undefined ? stats.csvRows || 0 : stats.totalRows);
+    const noRowsPassedBindedRule = Boolean(lastImport) &&
+      totalRows === 0 && Number(lastImport.rowsImported || 0) === 0;
+    $('#emptyTitle').textContent = totalRows === 0
+      ? (noRowsPassedBindedRule ? 'Tidak ada task dengan Binded di atas 5' : 'Belum ada data task')
+      : 'Tidak ada task yang cocok';
+    $('#emptyCopy').textContent = totalRows === 0
+      ? (noRowsPassedBindedRule
+        ? 'Semua task pada impor terakhir memiliki Binded 0–5, sehingga tidak dimasukkan ke CacheOrders.'
+        : 'Tambahkan task pada tab ManualOrders atau unggah CSV melalui tombol di atas.')
+      : 'Coba ubah kata pencarian atau filter yang dipilih.';
+  }
+}
+function renderDashboard(data) {
+  state.data = data;
+  const stats = data.stats || {};
+  const filter = data.filter || {};
+  $('#statComplete').textContent = formatNumber(stats.completeTimeRows);
+  $('#statVisible').textContent = formatNumber(stats.filteredRows);
+  $('#statVisibleSub').textContent = Number(stats.totalRows === undefined ? stats.csvRows || 0 : stats.totalRows) > 0 ? 'jumlah task yang tampil saat ini' : 'menunggu data task';
+  const manualRows = Number(stats.manualRows || 0);
+  $('#h1Badge').textContent = filter.h1Applied && filter.h1Date
+    ? ('H−1 CSV · ' + filter.h1Date + (manualRows ? ' + Manual' : ''))
+    : (data.lastImport ? 'Semua tanggal' : (manualRows ? 'Data manual' : 'Menunggu data'));
+  $('#toolbarCount').textContent = formatNumber(stats.filteredRows) + ' task';
+  const last = data.lastImport;
+  $('#lastImportText').textContent = last
+    ? 'Impor terakhir: ' + (last.filename || 'CSV') + ' · ' + (last.importedAt || '') + ' WIB' + (manualRows ? ' · ' + formatNumber(manualRows) + ' task manual' : '')
+    : (manualRows
+      ? 'Data manual tersedia · ' + formatNumber(manualRows) + ' task'
+      : 'Unggah CSV atau tambahkan task ke ManualOrders.');
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const key = el.dataset.count;
+    el.textContent = formatNumber(key === 'all' ? stats.visibleRows : ((stats.categories || {})[key] || 0));
+  });
+  const select = $('#statusFilter');
+  const prev = select.value;
+  const statuses = Array.isArray(data.statusOptions) ? data.statusOptions : [];
+  select.innerHTML = '<option value="">Semua status</option>' + statuses.map((status) =>
+    '<option value="' + escapeHtml(status) + '">' + escapeHtml(status) + '</option>').join('');
+  if (statuses.indexOf(prev) >= 0) select.value = prev;
+  $('#pageLabel').textContent = 'Halaman ' + (data.page || 1) + ' / ' + (data.pageCount || 1);
+  $('#prevPage').disabled = (data.page || 1) <= 1;
+  $('#nextPage').disabled = (data.page || 1) >= (data.pageCount || 1);
+  renderRows(data);
+}
+function setLoading(value) {
+  $('#loading').classList.toggle('hidden', !value);
+  if (value && !state.data) {
+    $('#tableWrap').classList.add('hidden');
+    $('#mobileList').classList.add('hidden');
+    $('#emptyState').classList.add('hidden');
+  }
+}
+function setRefreshButtonState() {
+  const button = $('#refreshBtn');
+  if (button) button.disabled = state.refreshInFlight || state.mutationsInFlight > 0;
+}
+
+function beginMutation() {
+  state.mutationsInFlight += 1;
+  setRefreshButtonState();
+}
+
+function endMutation(options) {
+  state.mutationsInFlight = Math.max(0, state.mutationsInFlight - 1);
+  if (options && options.suppressPendingRefresh) state.refreshPending = false;
+  setRefreshButtonState();
+  if (state.mutationsInFlight === 0 && state.refreshPending && !state.refreshInFlight) {
+    state.refreshPending = false;
+    setTimeout(() => loadData({ silent: true }), 0);
+  }
+}
+
+const RUNNER_SESSION_STORAGE_KEY = 'cacheOpsRunnerSessionV1';
+
+function runnerNotice(message, type) {
+  const el = $('#runnerNotice');
+  if (!el) return;
+  el.textContent = message || '';
+  el.className = 'runner-alert' + (message ? ' show' : '') + (type ? ' ' + type : '');
+}
+
+function setRunnerView(view) {
+  state.runnerView = view;
+  $('#taskDashboard').classList.toggle('hidden', view !== 'main');
+  $('#runnerWorkspace').classList.toggle('hidden', view === 'main');
+  $('#runnerSetupView').classList.toggle('hidden', view !== 'setup');
+  $('#runnerRegisterView').classList.toggle('hidden', view !== 'register');
+  $('#runnerDashboardView').classList.toggle('hidden', view !== 'dashboard');
+  if (view !== 'setup') state.runnerDirty = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function readRunnerSessionStorage() {
+  try {
+    const raw = sessionStorage.getItem(RUNNER_SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const value = JSON.parse(raw);
+    return value && value.sessionToken && value.runnerSlot && value.runnerName ? value : null;
+  } catch (error) { return null; }
+}
+
+function storeRunnerSession(session) {
+  state.runnerSession = session;
+  try { sessionStorage.setItem(RUNNER_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch (error) {
+    runnerNotice('Sesi aktif, tetapi browser tidak dapat menyimpan sesi untuk pemulihan saat refresh. Jangan tutup tab sebelum mengakhiri sesi.', 'error');
+  }
+  startRunnerHeartbeat();
+}
+
+function clearRunnerSessionStorage() {
+  state.runnerSession = null;
+  if (state.runnerHeartbeatTimer) clearInterval(state.runnerHeartbeatTimer);
+  state.runnerHeartbeatTimer = null;
+  try { sessionStorage.removeItem(RUNNER_SESSION_STORAGE_KEY); } catch (error) { /* private browsing */ }
+}
+
+function runnerApi(action, payload, timeoutMs) {
+  return postForm(action, payload || {}, timeoutMs || 60000).then(function (result) { return result.data || {}; });
+}
+
+function categoryClass(category) {
+  if (category === 'Bulky') return 'tag-bulky';
+  if (category === 'Liquid') return 'tag-liquid';
+  if (category === 'Paket Tipis') return 'tag-thin';
+  return 'tag-regular';
+}
+
+function renderRunnerSlotChips() {
+  const container = $('#runnerSlotChips');
+  if (!state.runnerSlots.length) {
+    container.innerHTML = '<span class="runner-muted">Belum ada slot. Tambahkan slot sebelum mengalokasikan CO.</span>';
+    return;
+  }
+  container.innerHTML = state.runnerSlots.map(function (slot) {
+    const pending = state.runnerPendingRemoval.indexOf(slot) >= 0;
+    return '<span class="runner-slot-chip' + (pending ? ' pending' : '') + '">' + escapeHtml(slot) +
+      (pending ? ' · penghapusan tertunda' : '') +
+      (state.runnerData && state.runnerData.setupLocked ? '' : '<button type="button" data-slot-action="' + (pending ? 'restore' : 'remove') + '" data-slot="' + escapeHtml(slot) + '" aria-label="' + (pending ? 'Batalkan penghapusan ' : 'Nonaktifkan ') + escapeHtml(slot) + '">' + (pending ? '↶' : '×') + '</button>') + '</span>';
+  }).join('');
+  document.querySelectorAll('#runnerSetupRows [data-owner] option').forEach(function (option) {
+    const ownerSelect = option.parentElement;
+    if (option.value && state.runnerPendingRemoval.indexOf(option.value) >= 0) option.disabled = ownerSelect.value !== option.value;
+  });
+  container.querySelectorAll('[data-slot-action]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const slot = button.dataset.slot;
+      if (button.dataset.slotAction === 'restore') {
+        state.runnerPendingRemoval = state.runnerPendingRemoval.filter(function (value) { return value !== slot; });
+      } else if (state.runnerSlots.indexOf(slot) >= 0) {
+        state.runnerPendingRemoval.push(slot);
+      }
+      state.runnerDirty = true;
+      renderRunnerSlotChips();
+      updateRunnerSetupControls();
+    });
+  });
+}
+
+function renderRunnerSetupRows(data) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const tbody = $('#runnerSetupRows');
+  $('#runnerSetupEmpty').classList.toggle('hidden', items.length > 0);
+  if (!items.length) {
+    tbody.innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = items.map(function (item) {
+    const owner = item.ownerSlot || '';
+    const ownerOption = owner && state.runnerSlots.indexOf(owner) < 0
+      ? '<option selected value="' + escapeHtml(owner) + '">' + escapeHtml(owner) + ' · nonaktif</option>' : '';
+    const options = '<option value="">Belum dialokasikan</option>' + ownerOption + state.runnerSlots.map(function (slot) {
+      const pending = state.runnerPendingRemoval.indexOf(slot) >= 0;
+      return '<option value="' + escapeHtml(slot) + '" ' + (owner === slot ? 'selected ' : '') + (pending ? 'disabled ' : '') + '>' + escapeHtml(slot) + (pending ? ' · akan dihapus' : '') + '</option>';
+    }).join('');
+    return '<tr><td><span class="runner-task-id">' + escapeHtml(item.id) + '</span><span class="runner-task-sub">' + escapeHtml(item.completeTime || item.status || 'Task aktif') + '</span></td>' +
+      '<td class="num">' + formatNumber(item.binded) + '</td><td><span class="runner-category ' + categoryClass(item.categories && item.categories[0]) + '">' + escapeHtml((item.categories || ['Reguler']).join(', ')) + '</span></td>' +
+      '<td><select class="runner-owner-select" data-owner="' + escapeHtml(item.id) + '" ' + (data.setupLocked ? 'disabled ' : '') + '>' + options + '</select></td>' +
+      '<td>' + (item.checked ? '<span class="runner-status-done">✓ Selesai sebelumnya</span>' : '<span class="runner-status-open">Belum dimulai</span>') + '</td></tr>';
+  }).join('');
+  tbody.querySelectorAll('[data-owner]').forEach(function (select) {
+    select.addEventListener('change', function () {
+      state.runnerDirty = true;
+      document.querySelectorAll('#runnerSetupRows [data-owner] option').forEach(function (option) {
+        const ownerSelect = option.parentElement;
+        if (option.value && state.runnerPendingRemoval.indexOf(option.value) >= 0) option.disabled = ownerSelect.value !== option.value;
+      });
+      updateRunnerSetupControls();
+    });
+  });
+}
+
+function renderRunnerSetup(data) {
+  state.runnerData = data;
+  if (!state.runnerDirty) state.runnerSlots = Array.isArray(data.slots) ? data.slots.slice() : [];
+  const locked = Boolean(data.setupLocked);
+  const activeSessions = Array.isArray(data.activeSessions) ? data.activeSessions : [];
+  $('#runnerSetupBadge').textContent = locked ? '▣ Alokasi terkunci' : 'Setup belum dikunci';
+  $('#runnerLockedBanner').classList.toggle('hidden', !locked);
+  $('#runnerUnlockSetup').classList.toggle('hidden', !locked || activeSessions.length > 0);
+  $('#runnerAddSlot').disabled = locked;
+  $('#runnerTaskSearch').disabled = locked || state.runnerDirty;
+  $('#runnerSetupCount').textContent = formatNumber(data.filteredTasks || 0) + ' dari ' + formatNumber(data.totalTasks || 0) + ' CO aktif';
+  $('#runnerSetupPageLabel').textContent = 'Halaman ' + (data.page || 1) + ' / ' + (data.pageCount || 1);
+  $('#runnerSetupPrev').disabled = locked || state.runnerDirty || (data.page || 1) <= 1;
+  $('#runnerSetupNext').disabled = locked || state.runnerDirty || (data.page || 1) >= (data.pageCount || 1);
+  $('#runnerApplySlots').disabled = locked || activeSessions.length > 0;
+  $('#runnerSaveAssignments').disabled = locked || activeSessions.length > 0;
+  $('#runnerLockSetup').disabled = locked || activeSessions.length > 0 || Number(data.totalTasks || 0) === 0;
+  renderRunnerSlotChips();
+  renderRunnerSetupRows(data);
+  renderRunnerActiveSessions(activeSessions);
+  updateRunnerSetupControls();
+}
+
+function renderRunnerActiveSessions(sessions) {
+  const container = $('#runnerActiveSessions');
+  if (!sessions.length) {
+    container.innerHTML = '<span class="runner-muted">Belum ada sesi aktif.</span>';
+    return;
+  }
+  container.innerHTML = sessions.map(function (session) {
+    return '<div class="runner-active-item"><span>▣</span><span><strong>' + escapeHtml(session.runnerSlot) + ' · ' + escapeHtml(session.runnerName) + '</strong><small>Aktif sejak ' + escapeHtml(session.startedAt || '—') + ' WIB</small></span><button class="secondary runner-handover-button" type="button" data-handover="' + escapeHtml(session.runnerSlot) + '">Serah-terima</button></div>';
+  }).join('');
+  container.querySelectorAll('[data-handover]').forEach(function (button) {
+    button.addEventListener('click', function () { forceEndRunnerSession(button.dataset.handover); });
+  });
+}
+
+function updateRunnerSetupControls() {
+  const locked = Boolean(state.runnerData && state.runnerData.setupLocked);
+  const busy = state.mutationsInFlight > 0;
+  $('#runnerAddSlot').disabled = locked || busy;
+  $('#runnerSaveAssignments').disabled = locked || busy;
+  $('#runnerApplySlots').disabled = locked || busy;
+  $('#runnerLockSetup').disabled = locked || busy || Number(state.runnerData && state.runnerData.totalTasks || 0) === 0;
+  $('#runnerSetupPrev').disabled = locked || state.runnerDirty || busy || !state.runnerData || state.runnerData.page <= 1;
+  $('#runnerSetupNext').disabled = locked || state.runnerDirty || busy || !state.runnerData || state.runnerData.page >= state.runnerData.pageCount;
+  $('#runnerTaskSearch').disabled = locked || state.runnerDirty || busy;
+}
+
+async function loadRunnerSetupPage(options) {
+  const opts = options || {};
+  if (state.runnerView !== 'setup' || (state.runnerDirty && !opts.force)) return false;
+  try {
+    const data = await runnerApi('getRunnerSetup', {
+      page: state.runnerPage,
+      pageSize: APP_CONFIG.runnerPageSize,
+      search: state.runnerSearch
+    }, 60000);
+    if (state.runnerView !== 'setup' || state.runnerDirty) return false;
+    renderRunnerSetup(data);
+    if (data.setupLocked && !(state.runnerSession && state.runnerSession.sessionToken)) {
+      // A locked shift can still be registered by a free runner slot.
+    }
+    return true;
+  } catch (error) {
+    const message = /permintaan aplikasi tidak dikenal|action.*tidak dikenal/i.test(error.message || '')
+      ? 'Backend yang terhubung masih memakai versi lama dan belum memiliki endpoint Runner Model A. Dashboard utama tetap dapat digunakan; pasang backend Model A lalu deploy versi baru untuk mengaktifkan Runner.'
+      : (error.message || 'Gagal membaca konfigurasi Runner.');
+    runnerNotice(message, 'error');
+    return false;
+  }
+}
+
+function addRunnerSlot() {
+  if (!state.runnerData || state.runnerData.setupLocked) return;
+  const used = Object.create(null);
+  state.runnerSlots.forEach(function (slot) { used[Number(slot.replace(/\D/g, ''))] = true; });
+  let index = 1;
+  while (used[index]) index++;
+  if (state.runnerSlots.length >= 100) { runnerNotice('Batas 100 slot runner tercapai.', 'error'); return; }
+  state.runnerSlots.push('Runner ' + index);
+  state.runnerSlots.sort(function (a, b) { return Number(a.replace(/\D/g, '')) - Number(b.replace(/\D/g, '')); });
+  state.runnerDirty = true;
+  renderRunnerSlotChips();
+  updateRunnerSetupControls();
+  runnerNotice('Slot baru ditambahkan. Simpan alokasi halaman agar slot muncul pada pilihan owner.', '');
+}
+
+async function saveRunnerSetupPage() {
+  if (!state.runnerData || state.runnerData.setupLocked) return false;
+  const items = Array.isArray(state.runnerData.items) ? state.runnerData.items : [];
+  const taskIds = items.map(function (item) { return item.id; });
+  const allocations = Array.from(document.querySelectorAll('#runnerSetupRows [data-owner]')).map(function (select) {
+    return { taskId: select.dataset.owner, runnerSlot: select.value };
+  });
+  if (allocations.length !== taskIds.length) {
+    runnerNotice('Baris alokasi berubah. Muat ulang halaman sebelum menyimpan.', 'error');
+    return false;
+  }
+  beginMutation();
+  try {
+    await runnerApi('saveRunnerSetup', { slots: state.runnerSlots, taskIds: taskIds, allocations: allocations }, 60000);
+    state.runnerDirty = false;
+    runnerNotice('Slot dan alokasi pada halaman ini tersimpan.', 'success');
+    await loadRunnerSetupPage({ force: true });
+    return true;
+  } catch (error) {
+    runnerNotice(error.message || 'Alokasi gagal disimpan.', 'error');
+    return false;
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+    updateRunnerSetupControls();
+  }
+}
+
+async function applyRunnerSlotChanges() {
+  if (!state.runnerData || state.runnerData.setupLocked) return false;
+  if (state.runnerDirty) {
+    runnerNotice('Simpan alokasi halaman terlebih dahulu sebelum menerapkan perubahan slot.', 'error');
+    return false;
+  }
+  const remaining = state.runnerSlots.filter(function (slot) { return state.runnerPendingRemoval.indexOf(slot) < 0; });
+  beginMutation();
+  try {
+    await runnerApi('saveRunnerSetup', { slots: remaining, taskIds: [], allocations: [] }, 60000);
+    state.runnerPendingRemoval = [];
+    state.runnerSlots = remaining;
+    state.runnerDirty = false;
+    runnerNotice('Perubahan slot tersimpan.', 'success');
+    await loadRunnerSetupPage({ force: true });
+    return true;
+  } catch (error) {
+    runnerNotice(error.message || 'Perubahan slot belum dapat diterapkan.', 'error');
+    return false;
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+    updateRunnerSetupControls();
+  }
+}
+
+async function lockRunnerSetup() {
+  if (state.runnerDirty) {
+    const saved = await saveRunnerSetupPage();
+    if (!saved) return;
+  }
+  if (state.runnerPendingRemoval.length) {
+    const applied = await applyRunnerSlotChanges();
+    if (!applied) return;
+  } else if (state.runnerSlots.length) {
+    // Persist newly added slots even if the current page has no allocation changes.
+    const applied = await applyRunnerSlotChanges();
+    if (!applied) return;
+  }
+  beginMutation();
+  try {
+    const result = await runnerApi('lockRunnerSetup', {}, 60000);
+    state.runnerPage = 1;
+    state.runnerDirty = false;
+    runnerNotice('Alokasi terkunci untuk ' + formatNumber(result.taskCount) + ' CO dan ' + formatNumber(result.runnerCount) + ' slot.', 'success');
+    const data = await runnerApi('getRunnerSetup', { page: 1, pageSize: APP_CONFIG.runnerPageSize }, 60000);
+    renderRunnerSetup(data);
+    populateRunnerRegistration(data);
+    setRunnerView('setup');
+  } catch (error) {
+    runnerNotice(error.message || 'Alokasi belum dapat dikunci.', 'error');
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+  }
+}
+
+async function unlockRunnerSetup() {
+  const confirmation = window.prompt('Untuk membuka alokasi, ketik BUKA SETUP. Pastikan tidak ada runner yang sedang bekerja.');
+  if (confirmation !== 'BUKA SETUP') return;
+  beginMutation();
+  try {
+    await runnerApi('unlockRunnerSetup', { confirmText: confirmation }, 60000);
+    state.runnerPage = 1;
+    state.runnerDirty = false;
+    runnerNotice('Setup dibuka. Perubahan alokasi harus dikunci kembali sebelum runner mendaftar.', 'success');
+    await loadRunnerSetupPage({ force: true });
+  } catch (error) {
+    runnerNotice(error.message || 'Setup tidak dapat dibuka.', 'error');
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+  }
+}
+
+function populateRunnerRegistration(data) {
+  const slots = Array.isArray(data.slots) ? data.slots : [];
+  const active = Array.isArray(data.activeSessions) ? data.activeSessions : [];
+  const busy = new Set(active.map(function (session) { return session.runnerSlot; }));
+  const select = $('#runnerSlotSelect');
+  const previous = select.value;
+  select.innerHTML = slots.map(function (slot) {
+    const unavailable = busy.has(slot);
+    return '<option value="' + escapeHtml(slot) + '" ' + (unavailable ? 'disabled ' : '') + '>' + escapeHtml(slot) + (unavailable ? ' · sedang aktif' : '') + '</option>';
+  }).join('');
+  if (slots.indexOf(previous) >= 0 && !busy.has(previous)) select.value = previous;
+  if (!select.value) {
+    const first = slots.find(function (slot) { return !busy.has(slot); });
+    if (first) select.value = first;
+  }
+  $('#runnerRegisterStart').disabled = !select.value;
+  renderRunnerRegistrationPreview(data);
+}
+
+function renderRunnerRegistrationPreview(data) {
+  const slot = $('#runnerSlotSelect').value;
+  const summary = (data.progress || []).find(function (row) { return row.runnerSlot === slot; });
+  const ids = summary && Array.isArray(summary.assignedTaskIds) ? summary.assignedTaskIds : [];
+  $('#runnerAssignedPreview').innerHTML = ids.length
+    ? ids.map(function (id) { return '<span class="runner-task-chip">' + escapeHtml(id) + '</span>'; }).join('')
+    : '<span class="runner-muted">Belum ada CO yang dialokasikan ke slot ini.</span>';
+}
+
+async function showRunnerRegistration() {
+  try {
+    const data = await runnerApi('getRunnerSetup', { page: 1, pageSize: APP_CONFIG.runnerPageSize }, 60000);
+    if (!data.setupLocked) {
+      runnerNotice('Alokasi belum dikunci. Selesaikan setup terlebih dahulu.', 'error');
+      setRunnerView('setup');
+      renderRunnerSetup(data);
+      return;
+    }
+    state.runnerData = data;
+    populateRunnerRegistration(data);
+    runnerNotice('Isi nama manual dan pilih slot yang tersedia.', '');
+    setRunnerView('register');
+  } catch (error) {
+    runnerNotice(error.message || 'Slot runner gagal dimuat.', 'error');
+  }
+}
+
+async function enterRunnerMode() {
+  if (state.runnerView === 'setup' && state.runnerDirty && !window.confirm('Perubahan setup yang belum disimpan akan dibuang. Lanjutkan?')) return;
+  state.runnerDirty = false;
+  state.runnerPendingRemoval = [];
+  state.runnerPage = 1;
+  state.runnerSearch = '';
+  $('#runnerTaskSearch').value = '';
+  setRunnerView('setup');
+  runnerNotice('Memuat alokasi Runner…', '');
+  const stored = state.runnerSession || readRunnerSessionStorage();
+  if (stored) {
+    state.runnerSession = stored;
+    setRunnerView('dashboard');
+    startRunnerHeartbeat();
+    const ok = await loadRunnerDashboard({ silent: false });
+    if (ok) return;
+    clearRunnerSessionStorage();
+    setRunnerView('setup');
+  }
+  await loadRunnerSetupPage({ force: true });
+  if (state.runnerData && state.runnerData.setupLocked) {
+    populateRunnerRegistration(state.runnerData);
+  }
+}
+
+async function registerRunnerSession() {
+  const runnerName = $('#runnerNameInput').value.trim();
+  const runnerSlot = $('#runnerSlotSelect').value;
+  if (runnerName.length < 2) { runnerNotice('Masukkan nama runner (minimal 2 karakter).', 'error'); return; }
+  if (!runnerSlot) { runnerNotice('Pilih slot runner yang tersedia.', 'error'); return; }
+  $('#runnerRegisterStart').disabled = true;
+  beginMutation();
+  try {
+    const result = await runnerApi('registerRunner', { runnerName: runnerName, runnerSlot: runnerSlot }, 60000);
+    storeRunnerSession({ sessionToken: result.sessionToken, runnerSlot: result.runnerSlot, runnerName: result.runnerName, startedAt: result.startedAt });
+    state.runnerPage = 1;
+    state.runnerSearch = '';
+    $('#runnerDashboardSearch').value = '';
+    setRunnerView('dashboard');
+    await loadRunnerDashboard({ silent: false });
+  } catch (error) {
+    runnerNotice(error.message || 'Sesi runner gagal dimulai.', 'error');
+  } finally {
+    $('#runnerRegisterStart').disabled = false;
+    endMutation({ suppressPendingRefresh: true });
+  }
+}
+
+function runnerProgressCard(progress, session) {
+  const activeName = session && session.runnerSlot === progress.runnerSlot ? session.runnerName : (progress.runnerName || 'Belum ada nama runner');
+  const checkedIds = Array.isArray(progress.checkedTaskIds) ? progress.checkedTaskIds : [];
+  return '<article class="runner-progress-card"><div class="runner-progress-head"><span class="runner-avatar">' + escapeHtml(progress.runnerSlot.replace(/\s+/g, '')) + '</span><span class="runner-progress-name"><strong>' + escapeHtml(activeName) + '</strong><small>' + escapeHtml(progress.runnerSlot) + ' · ' + formatNumber(progress.assignedCount) + ' CO</small></span><span class="runner-percent">' + formatNumber(progress.percent) + '%</span></div><div class="runner-progress-bar"><i style="width:' + Math.max(0, Math.min(100, Number(progress.percent) || 0)) + '%"></i></div><div class="runner-progress-meta"><span>' + formatNumber(progress.checkedCount) + ' / ' + formatNumber(progress.assignedCount) + ' CO selesai</span><span>' + formatNumber(progress.remainingCount) + ' tersisa</span></div><div class="runner-done-chips">' + (checkedIds.length ? checkedIds.slice(0, 8).map(function (id) { return '<span>' + escapeHtml(id) + '</span>'; }).join('') + (checkedIds.length > 8 ? '<span>+' + (checkedIds.length - 8) + '</span>' : '') : '<span>Belum ada CO selesai</span>') + '</div></article>';
+}
+
+function renderRunnerDashboard(data) {
+  state.runnerData = data;
+  const session = data.session || state.runnerSession;
+  if (session && state.runnerSession) {
+    state.runnerSession.runnerSlot = session.runnerSlot;
+    state.runnerSession.runnerName = session.runnerName;
+  }
+  $('#runnerIdentityText').textContent = session ? session.runnerName + ' · ' + session.runnerSlot : 'Sesi Runner';
+  $('#runnerDashboardSub').textContent = 'Sesi ' + (session ? session.runnerSlot : '') + ' · daftar CO dan owner yang dikunci untuk shift.';
+  const progress = Array.isArray(data.progress) ? data.progress : [];
+  const filter = data.filter || {};
+  $('#runnerRuleNote').textContent = filter.h1Applied
+    ? '▣ Snapshot shift dikunci dengan filter H-1 tanggal ' + filter.h1Date + '. Perubahan task di spreadsheet setelah dikunci tampil setelah seluruh sesi diakhiri, setup dibuka, dan alokasi dikunci kembali.'
+    : '▣ Snapshot shift dibekukan saat setup dikunci. Perubahan task di spreadsheet setelah dikunci tampil setelah seluruh sesi diakhiri, setup dibuka, dan alokasi dikunci kembali.';
+  const checked = progress.reduce(function (sum, row) { return sum + Number(row.checkedCount || 0); }, 0);
+  const assigned = progress.reduce(function (sum, row) { return sum + Number(row.assignedCount || 0); }, 0);
+  const activeTaskCount = Number(data.totalTasks || 0);
+  $('#runnerMetricAssigned').textContent = formatNumber(assigned);
+  $('#runnerMetricCompleted').textContent = formatNumber(checked) + ' / ' + formatNumber(activeTaskCount);
+  $('#runnerMetricPercent').textContent = activeTaskCount ? Math.round(checked * 100 / activeTaskCount) + '%' : '0%';
+  $('#runnerProgressCards').innerHTML = progress.map(function (row) { return runnerProgressCard(row, session); }).join('');
+  const items = Array.isArray(data.items) ? data.items : [];
+  $('#runnerDashboardRows').innerHTML = items.map(function (item) {
+    const owner = item.ownerSlot || '';
+    const ownerLabel = owner ? '<strong>' + escapeHtml(owner) + '</strong>' + (item.ownerName ? '<small>' + escapeHtml(item.ownerName) + ' · input manual</small>' : '') : '<span class="runner-muted">Belum dialokasikan</span>';
+    let action = '<span class="runner-disabled-action">—</span>';
+    if (owner && session && owner === session.runnerSlot) {
+      const busy = state.runnerBusyIds.has(item.id);
+      action = '<label><input type="checkbox" data-runner-check="' + escapeHtml(item.id) + '" ' + (item.checked ? 'checked ' : '') + (busy ? 'disabled ' : '') + '> Checklist</label>';
+    } else if (owner) {
+      action = '<span class="runner-disabled-action">Hanya ' + escapeHtml(owner) + '</span>';
+    }
+    return '<tr><td><span class="runner-task-id">' + escapeHtml(item.id) + '</span><span class="runner-task-sub">' + escapeHtml(item.completeTime || item.status || 'Task aktif') + '</span></td>' +
+      '<td class="num">' + formatNumber(item.binded) + '</td><td><span class="runner-category ' + categoryClass(item.categories && item.categories[0]) + '">' + escapeHtml((item.categories || ['Reguler']).join(', ')) + '</span></td>' +
+      '<td><span class="runner-owner-cell">' + ownerLabel + '</span></td><td>' + (item.checked ? '<span class="runner-status-done">✓ Selesai' + (item.checkedBy ? ' · ' + escapeHtml(item.checkedBy) : '') + '</span>' : '<span class="runner-status-open">Belum dimulai</span>') + '</td><td class="runner-check-cell">' + action + '</td></tr>';
+  }).join('');
+  $('#runnerDashboardPageLabel').textContent = 'Halaman ' + (data.page || 1) + ' / ' + (data.pageCount || 1) + ' · ' + formatNumber(data.filteredTasks || 0) + ' CO';
+  $('#runnerDashboardPrev').disabled = (data.page || 1) <= 1;
+  $('#runnerDashboardNext').disabled = (data.page || 1) >= (data.pageCount || 1);
+  $('#runnerDashboardRows').querySelectorAll('[data-runner-check]').forEach(function (checkbox) {
+    checkbox.addEventListener('change', onRunnerChecklistChange);
+  });
+}
+
+async function loadRunnerDashboard(options) {
+  if (!state.runnerSession || state.runnerView !== 'dashboard') return false;
+  try {
+    const data = await runnerApi('getRunnerSetup', {
+      page: state.runnerPage,
+      pageSize: APP_CONFIG.runnerPageSize,
+      search: state.runnerSearch,
+      sessionToken: state.runnerSession.sessionToken
+    }, 60000);
+    if (state.runnerView !== 'dashboard') return false;
+    renderRunnerDashboard(data);
+    if (!options || !options.silent) runnerNotice('Progress terakhir diperbarui ' + refreshClockLabel() + ' WIB.', 'success');
+    return true;
+  } catch (error) {
+    if (/sesi runner|sudah berakhir|kedaluwarsa/i.test(error.message || '')) {
+      clearRunnerSessionStorage();
+      runnerNotice(error.message + ' Pilih slot yang tersedia untuk memulai sesi baru.', 'error');
+      setRunnerView('setup');
+      await loadRunnerSetupPage({ force: true });
+      if (state.runnerData && state.runnerData.setupLocked) await showRunnerRegistration();
+    } else {
+      runnerNotice(error.message || 'Gagal memuat dashboard runner.', 'error');
+    }
+    return false;
+  }
+}
+
+async function onRunnerChecklistChange(event) {
+  const checkbox = event.currentTarget;
+  const taskId = checkbox.dataset.runnerCheck;
+  const nextValue = checkbox.checked;
+  if (!state.runnerSession || state.runnerBusyIds.has(taskId)) return;
+  const item = state.runnerData && state.runnerData.items.find(function (row) { return row.id === taskId; });
+  if (!item) return;
+  const oldValue = item.checked;
+  item.checked = nextValue;
+  state.runnerBusyIds.add(taskId);
+  beginMutation();
+  renderRunnerDashboard(state.runnerData);
+  try {
+    await runnerApi('setRunnerChecklist', { taskId: taskId, checked: nextValue, sessionToken: state.runnerSession.sessionToken }, 60000);
+    runnerNotice(nextValue ? 'Checklist tersimpan untuk ' + taskId + '.' : 'Checklist diperbarui untuk ' + taskId + '.', 'success');
+  } catch (error) {
+    item.checked = oldValue;
+    runnerNotice(error.message || 'Checklist runner gagal disimpan.', 'error');
+  } finally {
+    state.runnerBusyIds.delete(taskId);
+    endMutation({ suppressPendingRefresh: true });
+    await loadRunnerDashboard({ silent: true });
+  }
+}
+
+function startRunnerHeartbeat() {
+  if (state.runnerHeartbeatTimer) clearInterval(state.runnerHeartbeatTimer);
+  if (!state.runnerSession) return;
+  state.runnerHeartbeatTimer = setInterval(async function () {
+    if (!state.runnerSession || document.visibilityState !== 'visible') return;
+    try {
+      await runnerApi('heartbeatRunnerSession', { sessionToken: state.runnerSession.sessionToken }, 45000);
+    } catch (error) {
+      if (/sesi runner|sudah berakhir|kedaluwarsa/i.test(error.message || '')) {
+        clearRunnerSessionStorage();
+        setRunnerView('setup');
+        runnerNotice('Sesi runner tidak lagi aktif. Pilih slot yang tersedia untuk daftar kembali.', 'error');
+        await loadRunnerSetupPage({ force: true });
+        if (state.runnerData && state.runnerData.setupLocked) await showRunnerRegistration();
+      } else {
+        runnerNotice('Heartbeat sesi gagal dikirim. Koneksi akan dicoba kembali.', 'error');
+      }
+    }
+  }, APP_CONFIG.runnerHeartbeatMs);
+}
+
+async function forceEndRunnerSession(runnerSlot) {
+  const phrase = 'AKHIRI ' + runnerSlot;
+  const typed = window.prompt('Serah-terima ' + runnerSlot + ': ketik persis ' + phrase + '.');
+  if (typed !== phrase) return;
+  const reason = window.prompt('Tulis alasan serah-terima (misalnya pergantian operator/halaman tertutup).');
+  if (!reason || reason.trim().length < 5) { runnerNotice('Alasan serah-terima wajib diisi.', 'error'); return; }
+  beginMutation();
+  try {
+    await runnerApi('forceEndRunnerSession', { runnerSlot: runnerSlot, confirmText: typed, reason: reason.trim() }, 45000);
+    runnerNotice('Sesi ' + runnerSlot + ' ditutup dengan catatan serah-terima.', 'success');
+    await loadRunnerSetupPage({ force: true });
+  } catch (error) {
+    runnerNotice(error.message || 'Serah-terima gagal.', 'error');
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+  }
+}
+
+async function endRunnerSession() {
+  if (!state.runnerSession) { setRunnerView('setup'); return; }
+  if (!window.confirm('Akhiri sesi ' + state.runnerSession.runnerSlot + ' · ' + state.runnerSession.runnerName + '?')) return;
+  beginMutation();
+  try {
+    await runnerApi('endRunnerSession', { sessionToken: state.runnerSession.sessionToken }, 45000);
+    clearRunnerSessionStorage();
+    state.runnerPage = 1;
+    state.runnerSearch = '';
+    setRunnerView('setup');
+    runnerNotice('Sesi diakhiri. Slot dapat dipakai runner berikutnya.', 'success');
+    await loadRunnerSetupPage({ force: true });
+  } catch (error) {
+    runnerNotice(error.message || 'Sesi runner belum dapat diakhiri.', 'error');
+  } finally {
+    endMutation({ suppressPendingRefresh: true });
+  }
+}
+
+async function runnerPageMove(delta) {
+  if (state.runnerDirty) return;
+  const current = state.runnerData && state.runnerData.page || 1;
+  const maximum = state.runnerData && state.runnerData.pageCount || 1;
+  state.runnerPage = Math.max(1, Math.min(maximum, current + delta));
+  if (state.runnerView === 'dashboard') await loadRunnerDashboard({ silent: false });
+  else await loadRunnerSetupPage({ force: true });
+}
+
+async function changeRunnerSearch(value) {
+  if (state.runnerDirty) {
+    runnerNotice('Simpan alokasi halaman saat ini sebelum mengubah pencarian.', 'error');
+    return;
+  }
+  state.runnerSearch = String(value || '').trim();
+  state.runnerPage = 1;
+  if (state.runnerView === 'dashboard') await loadRunnerDashboard({ silent: true });
+  else if (state.runnerView === 'setup') await loadRunnerSetupPage({ force: true });
+}
+
+
+
+
+function refreshClockLabel() {
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+  }).format(new Date());
+}
+
+async function loadData(options) {
+  const opts = options || {};
+  const silent = Boolean(opts.silent);
+  const refreshMeta = $('#refreshMeta');
+
+  if (!configuredBackend()) {
+    setConnection('error', 'Backend belum disetel');
+    showNotice('Isi URL deployment Apps Script pada APP_CONFIG.backendUrl sebelum memublikasikan front end.', 'error');
+    setLoading(false);
+    $('#emptyState').classList.remove('hidden');
+    $('#emptyTitle').textContent = 'Konfigurasi backend belum lengkap';
+    $('#emptyCopy').textContent = 'Simpan URL deployment Apps Script pada file index.html, lalu publikasikan ulang GitHub Pages.';
+    return false;
+  }
+
+  if (state.mutationsInFlight > 0) {
+    state.refreshPending = true;
+    if (opts.manual && refreshMeta) refreshMeta.textContent = 'Menunggu penyimpanan selesai…';
+    return false;
+  }
+  if (state.refreshInFlight) {
+    state.refreshPending = true;
+    return false;
+  }
+
+  state.refreshInFlight = true;
+  const queryRevision = state.queryRevision;
+  setRefreshButtonState();
+  const refreshButton = $('#refreshBtn');
+  if (refreshButton) refreshButton.classList.add('is-refreshing');
+  if (opts.manual && refreshMeta) refreshMeta.textContent = 'Memperbarui data…';
+  if (!silent && !state.data) setLoading(true);
+
+  try {
+    const result = await postForm('getDashboard', {
+      page: state.page,
+      pageSize: APP_CONFIG.pageSize,
+      search: state.search,
+      status: state.status,
+      category: state.activeCategory
+    }, 60000);
+
+    // A read started before an operator write may return an older snapshot.
+    if (state.mutationsInFlight > 0 || queryRevision !== state.queryRevision) {
+      state.refreshPending = true;
+      return false;
+    }
+
+    renderDashboard(result.data || {});
+    state.lastRefreshedAt = Date.now();
+    if (refreshMeta) refreshMeta.textContent = 'Terakhir diperbarui ' + refreshClockLabel() + ' WIB';
+    showNotice('');
+    state.connected = true;
+    return true;
+  } catch (error) {
+    state.connected = false;
+    state.csrfToken = '';
+    setConnection('error', 'Tidak terhubung');
+    showNotice(error.message + ' Jika diminta login, gunakan “Buka login backend”, lalu muat ulang.', 'error');
+    if (refreshMeta) refreshMeta.textContent = 'Refresh gagal · ' + refreshClockLabel() + ' WIB';
+    return false;
+  } finally {
+    state.refreshInFlight = false;
+    if (refreshButton) refreshButton.classList.remove('is-refreshing');
+    setRefreshButtonState();
+    setLoading(false);
+
+    if (state.refreshPending && state.mutationsInFlight === 0) {
+      state.refreshPending = false;
+      setTimeout(() => loadData({ silent: true }), 0);
+    }
+  }
+}
+
+function startAutoRefresh() {
+  if (state.autoRefreshTimer) clearInterval(state.autoRefreshTimer);
+  state.autoRefreshTimer = setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    if (state.mutationsInFlight > 0 || state.refreshInFlight) return;
+    if (state.runnerView === 'dashboard' && state.runnerSession) loadRunnerDashboard({ silent: true });
+    else if (state.runnerView === 'setup' && !state.runnerDirty) loadRunnerSetupPage({ silent: true });
+    else if (state.runnerView === 'main') loadData({ silent: true });
+  }, APP_CONFIG.autoRefreshMs);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (state.mutationsInFlight > 0 || state.refreshInFlight) return;
+  if (state.runnerView === 'dashboard' && state.runnerSession) loadRunnerDashboard({ silent: true });
+  else if (state.runnerView === 'setup' && !state.runnerDirty) loadRunnerSetupPage({ silent: true });
+  else if (state.runnerView === 'main' && (!state.lastRefreshedAt || Date.now() - state.lastRefreshedAt >= APP_CONFIG.autoRefreshMs)) loadData({ silent: true });
+});
+function scheduleSearch() {
+  clearTimeout(state.debounceTimer);
+  state.debounceTimer = setTimeout(() => { state.page = 1; loadData(); }, 280);
+}
+async function onChecklistChange(event) {
+  const checkbox = event.currentTarget;
+  const taskId = checkbox.dataset.check;
+  const nextValue = checkbox.checked;
+  if (!state.busyIds) state.busyIds = new Set();
+  if (state.busyIds.has(taskId)) return;
+  const item = state.data && state.data.items && state.data.items.find((row) => row.id === taskId);
+  if (!item) return;
+  const oldValue = item.checklistChecked;
+  beginMutation();
+  item.checklistChecked = nextValue;
+  state.busyIds.add(taskId);
+  renderRows(state.data);
+  try {
+    await postForm('setChecklist', { taskId: taskId, checked: nextValue }, 45000);
+    toast(nextValue ? 'Checklist disimpan.' : 'Checklist diperbarui.');
+  } catch (error) {
+    item.checklistChecked = oldValue;
+    showNotice(error.message, 'error');
+    toast('Checklist belum tersimpan.');
+  } finally {
+    state.busyIds.delete(taskId);
+    renderRows(state.data);
+    endMutation();
+  }
+}
+async function readFileAsText(file) {
+  if (typeof file.text === 'function') return file.text();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('File CSV gagal dibaca pada browser.'));
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+async function importSelectedFile(file) {
+  if (!file) return;
+  if (!/\.csv$/i.test(file.name)) { toast('Pilih file berekstensi .csv.'); return; }
+  if (file.size > APP_CONFIG.maxUploadBytes) { toast('File terlalu besar; batas demo ini 6 MB.'); return; }
+  const button = $('#uploadBtn');
+  button.disabled = true;
+  beginMutation();
+  showNotice('Membaca dan memvalidasi CSV…');
+  setLoading(true);
+  let importedSuccessfully = false;
+  try {
+    const content = await readFileAsText(file);
+    await postForm('importCsv', { filename: file.name, content: content }, 120000);
+    state.page = 1;
+    state.search = '';
+    $('#search').value = '';
+    state.status = '';
+    $('#statusFilter').value = '';
+    state.queryRevision += 1;
+    importedSuccessfully = true;
+    toast('CSV berhasil diimpor.');
+  } catch (error) {
+    showNotice(error.message, 'error');
+    toast('CSV tidak berhasil diimpor.');
+  } finally {
+    setLoading(false);
+    button.disabled = false;
+    $('#csvFile').value = '';
+    endMutation({ suppressPendingRefresh: importedSuccessfully });
+  }
+  if (importedSuccessfully) await loadData({ manual: true });
+}
+
+$('#runnerModeBtn').addEventListener('click', enterRunnerMode);
+$('#runnerBackToTasks').addEventListener('click', () => { if (state.runnerDirty && !window.confirm('Buang perubahan slot/alokasi yang belum disimpan?')) return; state.runnerDirty = false; state.runnerPendingRemoval = []; setRunnerView('main'); });
+$('#runnerStartRegistration').addEventListener('click', showRunnerRegistration);
+$('#runnerBackToSetup').addEventListener('click', () => setRunnerView('setup'));
+$('#runnerAddSlot').addEventListener('click', addRunnerSlot);
+$('#runnerSaveAssignments').addEventListener('click', saveRunnerSetupPage);
+$('#runnerApplySlots').addEventListener('click', applyRunnerSlotChanges);
+$('#runnerLockSetup').addEventListener('click', lockRunnerSetup);
+$('#runnerUnlockSetup').addEventListener('click', unlockRunnerSetup);
+$('#runnerRegisterStart').addEventListener('click', registerRunnerSession);
+$('#runnerSlotSelect').addEventListener('change', () => { if (state.runnerData) renderRunnerRegistrationPreview(state.runnerData); });
+$('#runnerRefresh').addEventListener('click', () => loadRunnerDashboard({ silent: false }));
+$('#runnerEndSession').addEventListener('click', endRunnerSession);
+$('#runnerSetupPrev').addEventListener('click', () => runnerPageMove(-1));
+$('#runnerSetupNext').addEventListener('click', () => runnerPageMove(1));
+$('#runnerDashboardPrev').addEventListener('click', () => runnerPageMove(-1));
+$('#runnerDashboardNext').addEventListener('click', () => runnerPageMove(1));
+$('#runnerTaskSearch').addEventListener('input', (event) => {
+  clearTimeout(state.runnerSearchTimer);
+  state.runnerSearchTimer = setTimeout(() => changeRunnerSearch(event.target.value), 300);
+});
+$('#runnerDashboardSearch').addEventListener('input', (event) => {
+  clearTimeout(state.runnerSearchTimer);
+  state.runnerSearchTimer = setTimeout(() => changeRunnerSearch(event.target.value), 300);
+});
+
+$('#uploadBtn').addEventListener('click', () => $('#csvFile').click());
+$('#refreshBtn').addEventListener('click', () => loadData({ manual: true }));
+$('#csvFile').addEventListener('change', (event) => importSelectedFile(event.target.files && event.target.files[0]));
+$('#search').addEventListener('input', (event) => { state.search = event.target.value; state.queryRevision += 1; scheduleSearch(); });
+$('#statusFilter').addEventListener('change', (event) => { state.status = event.target.value; state.page = 1; state.queryRevision += 1; loadData(); });
+document.querySelectorAll('.filter-btn').forEach((button) => button.addEventListener('click', () => {
+  state.activeCategory = button.dataset.cat;
+  state.page = 1;
+  state.queryRevision += 1;
+  document.querySelectorAll('.filter-btn').forEach((element) => element.classList.toggle('active', element === button));
+  loadData();
+}));
+$('#prevPage').addEventListener('click', () => { if (state.data && state.data.page > 1) { state.page = state.data.page - 1; state.queryRevision += 1; loadData(); } });
+$('#nextPage').addEventListener('click', () => { if (state.data && state.data.page < state.data.pageCount) { state.page = state.data.page + 1; state.queryRevision += 1; loadData(); } });
+
+if (configuredBackend()) {
+  $('#openBackend').href = APP_CONFIG.backendUrl;
+  $('#openBackend').classList.remove('hidden');
+  setConnection('', 'Menghubungkan…');
+  startAutoRefresh();
+  bootstrap().then(async () => {
+    state.runnerSession = readRunnerSessionStorage();
+    if (state.runnerSession) {
+      setRunnerView('dashboard');
+      startRunnerHeartbeat();
+      await loadRunnerDashboard({ silent: false });
+    } else {
+      await loadData();
+    }
+  }).catch((error) => {
+    setConnection('error', 'Perlu login');
+    showNotice(error.message + ' Buka login backend dan muat ulang halaman.', 'error');
+    $('#emptyState').classList.remove('hidden');
+    $('#emptyTitle').textContent = 'Backend belum terhubung';
+    $('#emptyCopy').textContent = 'Pastikan URL deployment benar dan Anda sudah login ke akun Google.';
+    setLoading(false);
+  });
+} else {
+  setConnection('error', 'Backend belum disetel');
+  loadData();
+}
+
+</script>
+</body>
+</html>
